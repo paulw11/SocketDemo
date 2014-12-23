@@ -35,8 +35,8 @@
     self.myIP=[self getIPAddress];
     self.port=6666;
     [self createServerSocket:self.port];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardWillHideNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -181,19 +181,27 @@
     
 }
 
--(void) keyboardDidShow:(NSNotification *)notification{
+-(void) keyboardDidShow:(NSNotification *)notification {
     NSDictionary *info = notification.userInfo;
     CGRect keyboardFrame = [info[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     
-    [UIView animateWithDuration:0.1 animations:^{
-        self.bottomConstraint.constant = keyboardFrame.size.height+20;
+    NSTimeInterval animationDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    // animationDuration=1.0;
+    self.bottomConstraint.constant = keyboardFrame.size.height+20;
+    
+    [UIView animateWithDuration:animationDuration animations:^{
+        [self.view layoutIfNeeded];
     }];
     
 }
 
 -(void) keyboardDidHide:(NSNotification *)notification {
-    [UIView animateWithDuration:0.1 animations:^{
-        self.bottomConstraint.constant = 8;
+    NSDictionary *info = [notification userInfo];
+    NSTimeInterval animationDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+     self.bottomConstraint.constant = 8;
+    [UIView animateWithDuration:animationDuration animations:^{
+        [self.view layoutIfNeeded];
+       
     }];
 }
 
